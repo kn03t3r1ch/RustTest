@@ -18,6 +18,9 @@ fn event_a(app: &App, model: &mut Model, event: WindowEvent) {
 fn update(app: &App, model: &mut Model, _update: Update) {
     let mouse_pressed = app.mouse.buttons.left().is_down();
     let mouse_pos = app.mouse.position();
+    let mouse_delta_pos = mouse_pos - model.last_pos;
+    //println!("Velocity: {mouse_delta_pos}");
+
     if mouse_pressed == true && model.ball.xy.distance(mouse_pos) < (model.ball.ball_size) {
         // model.xy = mouse_pos;
         model.ball.left_pressed = true;
@@ -25,9 +28,12 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     if model.ball.left_pressed == true {
         model.ball.xy = mouse_pos;
     }
-    if mouse_pressed == false {
+    if mouse_pressed == false && model.ball.left_pressed == true {
         model.ball.left_pressed = false;
+        model.ball.velocity = mouse_delta_pos;
     }
+    model.ball.xy += model.ball.velocity;
+    model.last_pos = mouse_pos;
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
