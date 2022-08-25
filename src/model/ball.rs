@@ -5,7 +5,7 @@ use nannou::prelude::{pt2, Vec2};
 #[derive(Debug)]
 pub struct Ball {
     pub xy: Vec2,
-    pub ball_size: f32,
+    pub size: f32,
     pub left_pressed: bool,
     pub velocity: Vec2,
 }
@@ -18,7 +18,7 @@ impl Ball {
 
         Self {
             xy,
-            ball_size: 25.0,
+            size: 25.0,
             left_pressed,
             velocity: pt2(0.0, 0.0),
         }
