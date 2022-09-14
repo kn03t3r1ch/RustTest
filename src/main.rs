@@ -48,35 +48,6 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     if (model.ball.xy.y > rect.top()) || (model.ball.xy.y < rect.bottom()) {
         model.ball.velocity.y *= -1.0;
     }
-    // Clamp at screen width and height
-    // There is still a problem -> the ball clamps at the edge of the window but if I let go
-    // of the mouse outside of the renderer then the ball vanishes at the border of the window
-    // if (model.ball.xy.x > rect.right()) && (mouse_pressed == true) {
-    //     model.ball.xy.x = rect.right();
-    // }
-    // if (model.ball.xy.x < rect.left()) && (mouse_pressed == true) {
-    //     model.ball.xy.x = rect.left();
-    // }
-    // if (model.ball.xy.y > rect.top()) && (mouse_pressed == true) {
-    //     model.ball.xy.y = rect.top();
-    // }
-    // if (model.ball.xy.y < rect.bottom()) && (mouse_pressed == true) {
-    //     model.ball.xy.y = rect.bottom();
-    // }
-
-    // if (mouse_pos.x > rect.right()) && (mouse_pressed == true) {
-    //     mouse_pos.x = rect.right() - model.ball.size;
-    // }
-    // if (mouse_pos.x < rect.left()) && (mouse_pressed == true) {
-    //     mouse_pos.x = rect.left() - model.ball.size;
-    // }
-    // if (mouse_pos.y > rect.top()) && (mouse_pressed == true) {
-    //     mouse_pos.y = rect.top() - model.ball.size;
-    // }
-    // if (mouse_pos.y < rect.bottom()) && (mouse_pressed == true) {
-    //     mouse_pos.y = rect.bottom() - model.ball.size;
-    // }
-
     // mby with slider adjust velocity increase also to make the whole thing look
     // And mby also I could build this into an slider that one can use on top of the renderer
     model.ball.velocity *= 0.995;
@@ -86,14 +57,18 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         model.ball.xy = pt2(0.0, 0.0);
     }
 
-    println!("mousePos: {:?}", mouse_pos);
+    // println!("mousePos: {:?}", mouse_pos);
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.rect()
         .wh(app.window_rect().wh())
-        .rgba(1.0, 1.0, 1.0, 0.03);
+        .rgba(1.0, 0.5, 0.5, 0.03);
+
+    for thing in model.things.iter(){
+        draw.ellipse().xy(thing.position).radius(15.0).color(STEELBLUE);
+    }
 
     draw.ellipse().xy(model.ball.xy).color(STEELBLUE);
     draw.to_frame(app, &frame).unwrap();

@@ -1,6 +1,5 @@
-use std::ops::Add;
-
 use nannou::prelude::{pt2, Vec2};
+use std::ops::Add;
 
 #[derive(Debug)]
 pub struct Ball {
@@ -12,14 +11,14 @@ pub struct Ball {
 
 impl Ball {
     pub fn new() -> Self {
-        let xy = pt2(0.0, 0.0);
-        // let ball_size = 25.0;
-        let left_pressed = false;
+        // let xy = pt2(0.0, 0.0);
+        // // let ball_size = 25.0;
+        // let left_pressed = false;
 
         Self {
-            xy,
+            xy: pt2(0.0, 0.0),
             size: 25.0,
-            left_pressed,
+            left_pressed: false,
             velocity: pt2(0.0, 0.0),
         }
     }
