@@ -58,6 +58,40 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     }
 
     // println!("mousePos: {:?}", mouse_pos);
+
+    // -----------------
+    // testing with vec of BAlls
+    for thing in model.things.iter_mut() {
+        if mouse_pressed == true && thing.position.distance(mouse_pos) < (thing.size * 2.0) {
+            // model.xy = mouse_pos;
+            thing.left_pressed = true;
+        }
+        if thing.left_pressed == true {
+            thing.position = mouse_pos;
+        }
+        if mouse_pressed == false && thing.left_pressed == true {
+            thing.left_pressed = false;
+            thing.velocity = mouse_delta_pos;
+        }
+
+        thing.position += thing.velocity;
+
+        // Bounce of screen sides
+        if (thing.position.x > rect.right()) || (thing.position.x < rect.left()) {
+            thing.velocity.x *= -1.0;
+        }
+        if (thing.position.y > rect.top()) || (thing.position.y < rect.bottom()) {
+            thing.velocity.y *= -1.0;
+        }
+        // mby with slider adjust velocity increase also to make the whole thing look
+        // And mby also I could build this into an slider that one can use on top of the renderer
+        thing.velocity *= 0.995;
+        model.last_pos = mouse_pos;
+
+        if mouse_pressed_right == true {
+            thing.position = pt2(0.0, 0.0);
+        }
+    }
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
@@ -66,8 +100,11 @@ fn view(app: &App, model: &Model, frame: Frame) {
         .wh(app.window_rect().wh())
         .rgba(1.0, 0.5, 0.5, 0.03);
 
-    for thing in model.things.iter(){
-        draw.ellipse().xy(thing.position).radius(15.0).color(STEELBLUE);
+    for thing in model.things.iter() {
+        draw.ellipse()
+            .xy(thing.position)
+            .radius(thing.size)
+            .color(thing.color);
     }
 
     draw.ellipse().xy(model.ball.xy).color(STEELBLUE);

@@ -1,7 +1,7 @@
 use self::{ass::Ass, ball::Ball, balls_vector::Thing};
 use crate::app::App;
 // use nannou::prelude::{pt2, Vec2};
-use nannou::prelude::*;
+use nannou::{draw::properties::color, prelude::*};
 
 pub mod ass;
 pub mod ball;
@@ -20,10 +20,16 @@ impl Model {
     pub fn new() -> Self {
         let mut things = Vec::new();
         for i in 0..N_BALLS {
-            let thing = Thing::new(pt2(
-                (rand::random::<f32>() - 0.5) * 1024.0,
-                (rand::random::<f32>() - 0.5) * 1024.0,
-            ));
+            let thing = Thing::new(
+                pt2(
+                    (rand::random::<f32>() - 0.5) * 1024.0,
+                    (rand::random::<f32>() - 0.5) * 1024.0,
+                ),
+                (rand::random::<f32>() * 20.0) + 10.0,
+                false,
+                pt2(0.0, 0.0),
+                hsl(rand::random::<f32>(), 1.0, 0.5),
+            );
             things.push(thing);
         }
 
