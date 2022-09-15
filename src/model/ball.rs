@@ -1,41 +1,21 @@
-use nannou::prelude::{pt2, Vec2};
-use std::ops::Add;
-
-#[derive(Debug)]
+use nannou::prelude::{pt2, Hsl, Vec2};
+// use nannou::prelude::*;
 pub struct Ball {
-    pub xy: Vec2,
+    pub position: Vec2,
     pub size: f32,
     pub left_pressed: bool,
     pub velocity: Vec2,
+    pub color: Hsl,
 }
-
+// const N_THINGS: usize = 16;
 impl Ball {
-    pub fn new() -> Self {
-        // let xy = pt2(0.0, 0.0);
-        // // let ball_size = 25.0;
-        // let left_pressed = false;
-
-        Self {
-            xy: pt2(0.0, 0.0),
-            size: 25.0,
-            left_pressed: false,
-            velocity: pt2(0.0, 0.0),
+    pub fn new(position: Vec2, size: f32, left_pressed: bool, velocity: Vec2, color: Hsl) -> Self {
+        Ball {
+            position,
+            size,
+            left_pressed,
+            velocity,
+            color,
         }
     }
 }
-
-// impl Add for Ball {
-//     type Output = Ball;
-
-//     fn add(self, rhs: Self) -> Self::Output {
-
-//     }
-// }
-
-// for implementing vec 2 of mby 2 mouse.positions this is the implementation of it
-// fn add(self, rhs: Self) -> Self::Output {
-//     Vec2{
-//         x: self.x + rhs.x,
-//         y: self.y + rhs.y,
-//     }
-// }
