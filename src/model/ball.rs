@@ -1,8 +1,10 @@
 use nannou::prelude::{pt2, Hsl, Vec2};
 // use nannou::prelude::*;
+
+#[derive(Debug, Copy, Clone)]
 pub struct Ball {
     pub position: Vec2,
-    pub size: f32,
+    pub size: f32, // in this case size equals mass for intercollision detections between balls
     pub left_pressed: bool,
     pub velocity: Vec2,
     pub color: Hsl,

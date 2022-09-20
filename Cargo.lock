@@ -879,6 +879,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "kd-tree"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9188b383af4f1e1131b0d7065060b0ab808995c5bd18b8bbcff73c7c6af61afc"
+dependencies = [
+ "num-traits",
+ "ordered-float 3.0.0",
+ "paste",
+ "pdqselect",
+ "typenum",
+]
+
+[[package]]
 name = "khronos-egl"
 version = "4.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1120,6 +1133,7 @@ dependencies = [
 name = "my-first-nannou-project"
 version = "0.1.0"
 dependencies = [
+ "kd-tree",
  "nannou",
  "rand 0.8.5",
 ]
@@ -1417,6 +1431,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ordered-float"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96bcbab4bfea7a59c2c0fe47211a1ac4e3e96bea6eb446d704f310bc5c732ae2"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "owned_ttf_parser"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1472,6 +1495,18 @@ dependencies = [
  "smallvec",
  "winapi",
 ]
+
+[[package]]
+name = "paste"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1de2e551fb905ac83f73f7aedf2f0cb4a0da7e35efa24a202a936269f1f18e1"
+
+[[package]]
+name = "pdqselect"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7778906d9321dd56cde1d1ffa69a73e59dcf5fda6d366f62727adf2bd4193aee"
 
 [[package]]
 name = "pennereq"
@@ -1739,7 +1774,7 @@ dependencies = [
  "crossbeam-utils 0.7.2",
  "linked-hash-map",
  "num_cpus",
- "ordered-float",
+ "ordered-float 1.1.1",
  "rustc-hash",
  "stb_truetype",
 ]
@@ -1960,6 +1995,12 @@ name = "ttf-parser"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3e5d7cd7ab3e47dda6e56542f4bbf3824c15234958c6e1bd6aaa347e93499fdc"
+
+[[package]]
+name = "typenum"
+version = "1.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dcf81ac59edc17cc8697ff311e8f5ef2d99fcbd9817b34cec66f90b6c3dfd987"
 
 [[package]]
 name = "unicode-ident"
