@@ -1,6 +1,7 @@
 // This is no longer needed because we imported Ball already within the Model crate
 // use crate::model::ball::Ball;
 use crate::model::Model;
+use model::ball::Ball;
 // use model::ball::{self, Ball};
 use nannou::prelude::*;
 mod model;
@@ -19,53 +20,75 @@ fn event_a(app: &App, model: &mut Model, event: WindowEvent) {
 
 fn update(app: &App, model: &mut Model, _update: Update) {
     let mouse_pressed = app.mouse.buttons.left().is_down();
-    let mouse_pressed_right = app.mouse.buttons.right().is_down();
+    // let mouse_pressed_right = app.mouse.buttons.right().is_down();
     let rect = app.window_rect();
     let mouse_pos = app.mouse.position().clamp(
         pt2(rect.left(), rect.bottom()),
         pt2(rect.right(), rect.top()),
     );
     let mouse_delta_pos = mouse_pos - model.last_pos;
-
-    // println!("Velocity: {mouse_delta_pos}");
-
-    // println!("mousePos: {:?}", mouse_pos);
+    let len = model.balls.len();
 
     // -----------------
     // testing with vec of BAlls
-    for ball in model.balls.iter_mut() {
-        if mouse_pressed == true && ball.position.distance(mouse_pos) < (ball.size) {
+    for (count, other) in model.balls.iter_mut().enumerate() {
+        if mouse_pressed == true && other.position.distance(mouse_pos) < (other.size) {
             // model.xy = mouse_pos;
-            ball.left_pressed = true;
+            other.left_pressed = true;
         }
-        if ball.left_pressed == true {
-            ball.position = mouse_pos;
+        if other.left_pressed == true {
+            other.position = mouse_pos;
         }
-        if mouse_pressed == false && ball.left_pressed == true {
-            ball.left_pressed = false;
-            ball.velocity = mouse_delta_pos;
+        if mouse_pressed == false && other.left_pressed == true {
+            other.left_pressed = false;
+            other.velocity = mouse_delta_pos;
         }
-        ball.position += ball.velocity;
+        other.position += other.velocity;
+
+        //---------
+        // Testing implementing intersection here
 
         // Bounce of screen sides
-        if (ball.position.x > rect.right() - ball.size)
-            || (ball.position.x < rect.left() + ball.size)
-        {
-            ball.velocity.x *= -1.0;
-        }
-        if (ball.position.y > rect.top() - ball.size)
-            || (ball.position.y < rect.bottom() + ball.size)
-        {
-            ball.velocity.y *= -1.0;
-        }
+        // if (other.position.x > rect.right() - other.size)
+        //     || (other.position.x < rect.left() + other.size)
+        // {
+        //     other.velocity.x *= -1.0;
+        // }
+        // if (other.position.y > rect.top() - other.size)
+        //     || (other.position.y < rect.bottom() + other.size)
+        // {
+        //     other.velocity.y *= -1.0;
+        // }
         // mby with slider adjust velocity increase also to make the whole thing look
         // And mby also I could build this into an slider that one can use on top of the renderer
-        ball.velocity *= 1.0;
-        model.last_pos = mouse_pos;
+        // other.velocity *= 1.0;
+        // model.last_pos = mouse_pos;
+    }
 
-        if mouse_pressed_right == true {
-            ball.position = pt2(0.0, 0.0);
+    for i in 0..len {
+        // intersection testing
+        for j in i + 1..len {
+            if model.balls[i].position.distance(model.balls[j].position)
+                < (model.balls[i].size + model.balls[j].size)
+            {
+                println!("intersection at: {:?}", model.balls[j].position);
+                model.balls[i].color = hsl(1.0, 0.0, 1.0);
+            }
         }
+        //Bouncing of the sides
+        if (model.balls[i].position.x > rect.right() - model.balls[i].size)
+            || (model.balls[i].position.x < rect.left() + model.balls[i].size)
+        {
+            model.balls[i].velocity.x *= -1.0;
+        }
+        if (model.balls[i].position.y > rect.top() - model.balls[i].size)
+            || (model.balls[i].position.y < rect.bottom() + model.balls[i].size)
+        {
+            model.balls[i].velocity.y *= -1.0;
+        }
+        // mby Slider for velocity for eva?!?!
+        model.balls[i].velocity *= 1.0;
+        model.last_pos = mouse_pos;
     }
 }
 
