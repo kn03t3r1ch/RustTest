@@ -48,10 +48,14 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         ball.position += ball.velocity;
 
         // Bounce of screen sides
-        if (ball.position.x > rect.right()) || (ball.position.x < rect.left()) {
+        if (ball.position.x > rect.right() - ball.size)
+            || (ball.position.x < rect.left() + ball.size)
+        {
             ball.velocity.x *= -1.0;
         }
-        if (ball.position.y > rect.top()) || (ball.position.y < rect.bottom()) {
+        if (ball.position.y > rect.top() - ball.size)
+            || (ball.position.y < rect.bottom() + ball.size)
+        {
             ball.velocity.y *= -1.0;
         }
         // mby with slider adjust velocity increase also to make the whole thing look

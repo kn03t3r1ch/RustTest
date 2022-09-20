@@ -14,7 +14,7 @@ impl Model {
     pub fn new() -> Self {
         let mut balls = Vec::new();
         let mut counter = 0;
-        let ball_count = 16;
+        let ball_count = 20;
 
         while counter < ball_count {
             let ball = Ball::new(
