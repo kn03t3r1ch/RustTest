@@ -8,16 +8,18 @@ pub struct Ball {
     pub left_pressed: bool,
     pub velocity: Vec2,
     pub color: Hsl,
+    pub mass: f32,
 }
 // const N_THINGS: usize = 16;
 impl Ball {
-    pub fn new(position: Vec2, size: f32, left_pressed: bool, velocity: Vec2, color: Hsl) -> Self {
+    pub fn new(position: Vec2, size: f32, left_pressed: bool, velocity: Vec2, color: Hsl, mass: f32) -> Self {
         Ball {
             position,
             size,
             left_pressed,
             velocity,
             color,
+            mass
         }
     }
 }

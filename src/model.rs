@@ -14,19 +14,24 @@ impl Model {
     pub fn new() -> Self {
         let mut balls = Vec::new();
         let mut counter = 0;
-        let ball_count = 5;
+        let ball_count = 30;
 
         while counter < ball_count {
             let ball = Ball::new(
                 pt2(
-                    (rand::random::<f32>() - 0.5) * 512.0,
+                    (rand::random::<f32>() - 0.5) * 1024.0,
                     (rand::random::<f32>() - 0.5) * 512.0,
                 ),
                 (rand::random::<f32>() * 50.0) + 20.0,
                 false,
-                pt2(0.0, 0.0),
+                pt2(
+                    (rand::random::<f32>() - 0.5) * 3.0,
+                    (rand::random::<f32>() - 0.5) * 3.0,
+                ),
                 // hsl(0.3, 1.0, 0.5),
                 hsl(rand::random::<f32>(), 1.0, 0.5),
+                1.0,
+                // (rand::random::<f32>() * 0.5),
             );
 
             balls.push(ball);

@@ -26,34 +26,34 @@ fn rotate(velocity: f32, angle: f32) {
  * @return Null | Does not return a value
  */
 
-fn resolveCollision(particle, otherParticle) {
-    const xVelocityDiff = particle.velocity.x - otherParticle.velocity.x;
-    const yVelocityDiff = particle.velocity.y - otherParticle.velocity.y;
+fn resolveCollision(particle: ball, otherParticle) {
+    let xVelocityDiff = particle.velocity.x - otherParticle.velocity.x;
+    let yVelocityDiff = particle.velocity.y - otherParticle.velocity.y;
 
-    const xDist = otherParticle.x - particle.x;
-    const yDist = otherParticle.y - particle.y;
+    let xDist = otherParticle.x - particle.x;
+    let yDist = otherParticle.y - particle.y;
 
     // Prevent accidental overlap of particles
     if (xVelocityDiff * xDist + yVelocityDiff * yDist >= 0) {
 
         // Grab angle between the two colliding particles
-        const angle = -Math.atan2(otherParticle.y - particle.y, otherParticle.x - particle.x);
+        let angle = -Math.atan2(otherParticle.y - particle.y, otherParticle.x - particle.x);
 
         // Store mass in var for better readability in collision equation
-        const m1 = particle.mass;
-        const m2 = otherParticle.mass;
+        let m1 = particle.mass;
+        let m2 = otherParticle.mass;
 
         // Velocity before equation
-        const u1 = rotate(particle.velocity, angle);
-        const u2 = rotate(otherParticle.velocity, angle);
+        let u1 = rotate(particle.velocity, angle);
+        let u2 = rotate(otherParticle.velocity, angle);
 
         // Velocity after 1d collision equation
-        const v1 = { x: u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2 * m2 / (m1 + m2), y: u1.y };
-        const v2 = { x: u2.x * (m1 - m2) / (m1 + m2) + u1.x * 2 * m2 / (m1 + m2), y: u2.y };
+        let v1 = { x: u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2 * m2 / (m1 + m2), y: u1.y };
+        let v2 = { x: u2.x * (m1 - m2) / (m1 + m2) + u1.x * 2 * m2 / (m1 + m2), y: u2.y };
 
         // Final velocity after rotating axis back to original location
-        const vFinal1 = rotate(v1, -angle);
-        const vFinal2 = rotate(v2, -angle);
+        let vFinal1 = rotate(v1, -angle);
+        let vFinal2 = rotate(v2, -angle);
 
         // Swap particle velocities for realistic bounce effect
         particle.velocity.x = vFinal1.x;

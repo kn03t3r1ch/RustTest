@@ -72,7 +72,10 @@ fn update(app: &App, model: &mut Model, _update: Update) {
                 < (model.balls[i].size + model.balls[j].size)
             {
                 println!("intersection at: {:?}", model.balls[j].position);
-                model.balls[i].color = hsl(1.0, 0.0, 1.0);
+                // model.balls[i].color = hsl(1.0, 0.0, 1.0);
+                // resolve_collision(model.balls[i], model.balls[j]);
+                (model.balls[i], model.balls[j]) =
+                    resolve_collision(model.balls[i], model.balls[j]);
             }
         }
         //Bouncing of the sides
@@ -86,10 +89,74 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         {
             model.balls[i].velocity.y *= -1.0;
         }
+
         // mby Slider for velocity for eva?!?!
-        model.balls[i].velocity *= 1.0;
+        model.balls[i].velocity *= 0.99;
         model.last_pos = mouse_pos;
     }
+}
+
+fn rotate(velocity: Vec2, angle: f32) -> Vec2 {
+    let rotated_velocities: Vec2 = pt2(
+        velocity.x * angle.cos() - velocity.y * angle.sin(),
+        velocity.x * angle.sin() + velocity.y * angle.cos(),
+    );
+    println!("rotatedVelocities: {:?}", rotated_velocities);
+
+    rotated_velocities
+}
+
+// ToDo hier muss bestimmt n returnType rein aber ich weiß nich wie ich direkt beide als vector of
+// velocity returnen kann
+// irgendwie geht das bestimmt!
+fn resolve_collision(mut particle: Ball, mut other_particle: Ball) -> (Ball, Ball) {
+    let x_velocity_diff = particle.velocity.x - other_particle.velocity.x;
+    let y_velocity_diff = particle.velocity.y - other_particle.velocity.y;
+
+    let x_dist = other_particle.position.x - particle.position.x;
+    let y_dist = other_particle.position.y - particle.position.y;
+
+    // Prevent accidental overlap of particles
+    if x_velocity_diff * x_dist + y_velocity_diff * y_dist >= 0.0 {
+        // Grab angle between the two colliding particles
+        let angle = -(other_particle.position.y - particle.position.y)
+            .atan2(other_particle.position.x - particle.position.x);
+
+        // Store mass in var for better readability in collision equation
+        let m1 = particle.mass;
+        let m2 = other_particle.mass;
+
+        // Velocity before equation
+        let u1 = rotate(particle.velocity, angle);
+        let u2 = rotate(other_particle.velocity, angle);
+
+        // Velocity after 1d collision equation
+        let v1 = pt2(
+            u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2.0 * m2 / (m1 + m2),
+            u1.y,
+        );
+        let v2 = pt2(
+            u2.x * (m1 - m2) / (m1 + m2) + u1.x * 2.0 * m2 / (m1 + m2),
+            u2.y,
+        );
+
+        // Final velocity after rotating axis back to original location
+        let v_final1 = rotate(v1, -angle);
+        let v_final2 = rotate(v2, -angle);
+
+        // Swap particle velocities for realistic bounce effect
+        particle.velocity.x = v_final1.x;
+        particle.velocity.y = v_final1.y;
+
+        other_particle.velocity.x = v_final2.x;
+        other_particle.velocity.y = v_final2.y;
+
+        // hier muss irgendwas returned werden!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // particle.velocity = pt2(particle.velocity.x, particle.velocity.y);
+        // other_particle.velocity = pt2(other_particle.velocity.x, other_particle.velocity.y);
+        // let output = (particle, other_particle);
+    }
+    (particle, other_particle)
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
