@@ -1,7 +1,10 @@
 // This is no longer needed because we imported Ball already within the Model crate
 // use crate::model::ball::Ball;
 use crate::model::Model;
+use model::audio_file::Audio;
 use model::ball::Ball;
+use nannou_audio as audio;
+use nannou_audio::Buffer;
 // use model::ball::{self, Ball};
 use nannou::prelude::*;
 mod model;
@@ -10,12 +13,18 @@ fn main() {
 }
 
 fn model(app: &App) -> Model {
-    let _window = app.new_window().event(event_a).build().unwrap();
+    app.new_window()
+        .key_pressed(key_pressed)
+        .size(1920, 1080)
+        .event(event_a)
+        .build()
+        .unwrap();
+
     Model::new()
 }
 
 fn event_a(app: &App, model: &mut Model, event: WindowEvent) {
-    // println!("event_a {:?}", model.ball.velocity);
+    // println!("event_a {:?}", model.balls.velocity);
 }
 
 fn update(app: &App, model: &mut Model, _update: Update) {
@@ -28,7 +37,6 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     );
     let mouse_delta_pos = mouse_pos - model.last_pos;
     let len = model.balls.len();
-
     // -----------------
     // testing with vec of BAlls
     for (count, other) in model.balls.iter_mut().enumerate() {
@@ -71,8 +79,9 @@ fn update(app: &App, model: &mut Model, _update: Update) {
             if model.balls[i].position.distance(model.balls[j].position)
                 < (model.balls[i].size + model.balls[j].size)
             {
-                println!("intersection at: {:?}", model.balls[j].position);
-                // model.balls[i].color = hsl(1.0, 0.0, 1.0);
+                // println!("intersection at: {:?}", model.balls[j].position);
+                // model.balls[i].color = hsl(random_f32(), 1.0, 0.5);
+                // model.balls[j].color = hsl(random_f32(), 1.0, 0.5);
                 // resolve_collision(model.balls[i], model.balls[j]);
                 (model.balls[i], model.balls[j]) =
                     resolve_collision(model.balls[i], model.balls[j]);
@@ -91,7 +100,7 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         }
 
         // mby Slider for velocity for eva?!?!
-        model.balls[i].velocity *= 0.99;
+        model.balls[i].velocity *= 0.9999;
         model.last_pos = mouse_pos;
     }
 }
@@ -101,14 +110,9 @@ fn rotate(velocity: Vec2, angle: f32) -> Vec2 {
         velocity.x * angle.cos() - velocity.y * angle.sin(),
         velocity.x * angle.sin() + velocity.y * angle.cos(),
     );
-    println!("rotatedVelocities: {:?}", rotated_velocities);
-
     rotated_velocities
 }
 
-// ToDo hier muss bestimmt n returnType rein aber ich weiß nich wie ich direkt beide als vector of
-// velocity returnen kann
-// irgendwie geht das bestimmt!
 fn resolve_collision(mut particle: Ball, mut other_particle: Ball) -> (Ball, Ball) {
     let x_velocity_diff = particle.velocity.x - other_particle.velocity.x;
     let y_velocity_diff = particle.velocity.y - other_particle.velocity.y;
@@ -150,11 +154,6 @@ fn resolve_collision(mut particle: Ball, mut other_particle: Ball) -> (Ball, Bal
 
         other_particle.velocity.x = v_final2.x;
         other_particle.velocity.y = v_final2.y;
-
-        // hier muss irgendwas returned werden!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // particle.velocity = pt2(particle.velocity.x, particle.velocity.y);
-        // other_particle.velocity = pt2(other_particle.velocity.x, other_particle.velocity.y);
-        // let output = (particle, other_particle);
     }
     (particle, other_particle)
 }
@@ -171,7 +170,46 @@ fn view(app: &App, model: &Model, frame: Frame) {
             .radius(ball.size)
             .color(ball.color);
     }
-
-    // draw.ellipse().xy(model.ball.xy).color(STEELBLUE);
     draw.to_frame(app, &frame).unwrap();
+}
+
+// fn audio(audio: &mut Audio, buffer: &mut Buffer){
+
+// }
+
+// this is for testing purposes how to implement sound
+// But this is only for a key press -> I need to refactor this
+// for making it usable if objects collide
+fn key_pressed(app: &App, model: &mut Model, key: Key) {
+    match key {
+        // Start playing another instance of the sound.
+        // Key::Space => {
+        //     let assets = app.assets_path().expect("could not find assets directory");
+        //     let path = assets.join("sounds").join("thumbpiano.wav");
+        //     let sound = audrey::open(path).expect("failed to load sound");
+        //     model
+        //         .stream
+        //         .send(move |audio| {
+        //             audio.sounds.push(sound);
+        //         })
+        //         .ok();
+        //     println!("space pressed!");
+        // }
+        // _ => {}
+        Key::Space => {
+            let assets = app.assets_path().expect("could not find assets directory");
+            let random_value = random_range(0, 3);
+            let path = assets
+                .join("sounds_2")
+                .join(format!("dmk02__{}.wav", random_value));
+            let sound = audrey::open(path).expect("failed to fuckin load the sound");
+            model
+                .stream
+                .send(move |audio| {
+                    audio.sounds.push(sound);
+                })
+                .ok();
+        }
+        _ => {}
+    }
 }

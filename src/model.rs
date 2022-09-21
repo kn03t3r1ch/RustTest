@@ -1,6 +1,12 @@
+use self::audio_file::Audio;
 use self::ball::Ball;
 use nannou::prelude::*;
+use nannou_audio as audio;
+use nannou_audio::Buffer;
+use std::fs::{self, File};
+use std::io::Read;
 
+pub mod audio_file;
 pub mod ball;
 
 // const N_BALLS: usize = 30;
@@ -8,19 +14,20 @@ pub mod ball;
 pub struct Model {
     pub last_pos: Vec2,
     pub balls: Vec<Ball>,
+    pub stream: audio::Stream<Audio>,
 }
 
 impl Model {
     pub fn new() -> Self {
         let mut balls = Vec::new();
         let mut counter = 0;
-        let ball_count = 30;
+        let ball_count = 5;
 
         while counter < ball_count {
             let ball = Ball::new(
                 pt2(
-                    (rand::random::<f32>() - 0.5) * 1024.0,
-                    (rand::random::<f32>() - 0.5) * 512.0,
+                    (rand::random::<f32>() - 0.5) * 1920.0,
+                    (rand::random::<f32>() - 0.5) * 1080.0,
                 ),
                 (rand::random::<f32>() * 50.0) + 20.0,
                 false,
@@ -63,9 +70,62 @@ impl Model {
             }
         }
 
+        let audio_host = audio::Host::new();
+        let sounds = vec![];
+        let audio_model = Audio { sounds };
+        let stream = audio_host
+            .new_output_stream(audio_model)
+            .render(audio)
+            .build()
+            .unwrap();
+        stream.play().unwrap();
+
+        // let files_vec = read_files();
+        // println!("vec is filled with: {} files", files_vec.len());
+        
+        
+        //-----
+        // testing if i can open a file in a directory this way!
+        let mut _file = File::open("./assets/sounds/dmk02__024-c0.wav").expect("Can't open file");
+
+        // read_files();
         Self {
             last_pos: pt2(0.0, 0.0),
             balls,
+            stream,
         }
     }
 }
+
+fn audio(audio_file: &mut Audio, buffer: &mut Buffer) {
+    let mut have_ended = vec![];
+    let len_frames = buffer.len_frames();
+
+    // Sum all of the sounds onto the buffer.
+    for (i, sound) in audio_file.sounds.iter_mut().enumerate() {
+        let mut frame_count = 0;
+        let file_frames = sound.frames::<[f32; 2]>().filter_map(Result::ok);
+        for (frame, file_frame) in buffer.frames_mut().zip(file_frames) {
+            for (sample, file_sample) in frame.iter_mut().zip(&file_frame) {
+                *sample += *file_sample;
+            }
+            frame_count += 1;
+        }
+
+        // If the sound yielded less samples than are in the buffer, it must have ended.
+        if frame_count < len_frames {
+            have_ended.push(i);
+        }
+    }
+
+    // Remove all sounds that have ended.
+    for i in have_ended.into_iter().rev() {
+        audio_file.sounds.remove(i);
+    }
+}
+
+// fn read_files() {
+//     let mut audio_files: Vec<f>
+//     let mut file = File::open("./assets/sounds/").expect("can't open the file");
+
+// }
