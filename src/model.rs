@@ -1,11 +1,12 @@
+use crate::{BALL_COUNT, SOUND_COUNT};
+
 use self::audio_file::Audio;
 use self::ball::Ball;
 use nannou::prelude::*;
 use nannou_audio as audio;
 use nannou_audio::Buffer;
-use std::fs::{self, File};
-use std::io::Read;
-
+// I would like to check out another audio crate but haven't had the time left for it
+// so I stuck with the very basic audio crate from nannou where no effects can be applied
 pub mod audio_file;
 pub mod ball;
 
@@ -21,7 +22,7 @@ impl Model {
     pub fn new() -> Self {
         let mut balls = Vec::new();
         let mut counter = 0;
-        let ball_count = 5;
+        let ball_count = BALL_COUNT;
 
         while counter < ball_count {
             let ball = Ball::new(
@@ -45,12 +46,15 @@ impl Model {
             counter += 1;
 
             println!(
-                "filling Vec at index: {:?}",
+                "filling Vec at index: {:?}", // troubleshooting
                 balls.iter().enumerate().count()
             );
 
             let mut intersected = false;
 
+            //----------
+            // intersection testing when building array of balls at random position
+            // and random radius so they don't intersect at startup
             if counter > 1 {
                 for (i, other) in balls.iter_mut().enumerate() {
                     if i < counter - 1 {
@@ -59,7 +63,7 @@ impl Model {
                             .sqrt();
                         if dist < other.size + ball.size {
                             intersected = true;
-                            println!("intersection!")
+                            println!("intersection when building vec!"); // troubleshooting
                         }
                     }
                 }
@@ -80,15 +84,10 @@ impl Model {
             .unwrap();
         stream.play().unwrap();
 
-        // let files_vec = read_files();
-        // println!("vec is filled with: {} files", files_vec.len());
-        
-        
         //-----
         // testing if i can open a file in a directory this way!
-        let mut _file = File::open("./assets/sounds/dmk02__024-c0.wav").expect("Can't open file");
+        // let mut _file = File::open("./assets/sounds/dmk02__024-c0.wav").expect("Can't open file");
 
-        // read_files();
         Self {
             last_pos: pt2(0.0, 0.0),
             balls,
@@ -96,6 +95,8 @@ impl Model {
         }
     }
 }
+
+
 
 fn audio(audio_file: &mut Audio, buffer: &mut Buffer) {
     let mut have_ended = vec![];
@@ -123,9 +124,3 @@ fn audio(audio_file: &mut Audio, buffer: &mut Buffer) {
         audio_file.sounds.remove(i);
     }
 }
-
-// fn read_files() {
-//     let mut audio_files: Vec<f>
-//     let mut file = File::open("./assets/sounds/").expect("can't open the file");
-
-// }

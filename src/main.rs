@@ -1,20 +1,18 @@
-// This is no longer needed because we imported Ball already within the Model crate
-// use crate::model::ball::Ball;
 use crate::model::Model;
-use model::audio_file::Audio;
 use model::ball::Ball;
-use nannou_audio as audio;
-use nannou_audio::Buffer;
-// use model::ball::{self, Ball};
 use nannou::prelude::*;
+use std::time::{self, Duration, SystemTime};
 mod model;
+
+const BALL_COUNT: usize = 25;
+const SOUND_COUNT: usize = 72;
+
 fn main() {
     nannou::app(model).update(update).view(view).run();
 }
 
 fn model(app: &App) -> Model {
     app.new_window()
-        .key_pressed(key_pressed)
         .size(1920, 1080)
         .event(event_a)
         .build()
@@ -23,9 +21,7 @@ fn model(app: &App) -> Model {
     Model::new()
 }
 
-fn event_a(app: &App, model: &mut Model, event: WindowEvent) {
-    // println!("event_a {:?}", model.balls.velocity);
-}
+fn event_a(_app: &App, _model: &mut Model, _event: WindowEvent) {}
 
 fn update(app: &App, model: &mut Model, _update: Update) {
     let mouse_pressed = app.mouse.buttons.left().is_down();
@@ -37,52 +33,15 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     );
     let mouse_delta_pos = mouse_pos - model.last_pos;
     let len = model.balls.len();
-    // -----------------
-    // testing with vec of BAlls
-    for (count, other) in model.balls.iter_mut().enumerate() {
-        if mouse_pressed == true && other.position.distance(mouse_pos) < (other.size) {
-            // model.xy = mouse_pos;
-            other.left_pressed = true;
-        }
-        if other.left_pressed == true {
-            other.position = mouse_pos;
-        }
-        if mouse_pressed == false && other.left_pressed == true {
-            other.left_pressed = false;
-            other.velocity = mouse_delta_pos;
-        }
-        other.position += other.velocity;
 
-        //---------
-        // Testing implementing intersection here
-
-        // Bounce of screen sides
-        // if (other.position.x > rect.right() - other.size)
-        //     || (other.position.x < rect.left() + other.size)
-        // {
-        //     other.velocity.x *= -1.0;
-        // }
-        // if (other.position.y > rect.top() - other.size)
-        //     || (other.position.y < rect.bottom() + other.size)
-        // {
-        //     other.velocity.y *= -1.0;
-        // }
-        // mby with slider adjust velocity increase also to make the whole thing look
-        // And mby also I could build this into an slider that one can use on top of the renderer
-        // other.velocity *= 1.0;
-        // model.last_pos = mouse_pos;
-    }
-
+    //-------------
+    // intersection testing
     for i in 0..len {
-        // intersection testing
         for j in i + 1..len {
             if model.balls[i].position.distance(model.balls[j].position)
                 < (model.balls[i].size + model.balls[j].size)
             {
-                // println!("intersection at: {:?}", model.balls[j].position);
-                // model.balls[i].color = hsl(random_f32(), 1.0, 0.5);
-                // model.balls[j].color = hsl(random_f32(), 1.0, 0.5);
-                // resolve_collision(model.balls[i], model.balls[j]);
+                play_rand_sound(app, model, model.balls[i].position);
                 (model.balls[i], model.balls[j]) =
                     resolve_collision(model.balls[i], model.balls[j]);
             }
@@ -99,10 +58,42 @@ fn update(app: &App, model: &mut Model, _update: Update) {
             model.balls[i].velocity.y *= -1.0;
         }
 
-        // mby Slider for velocity for eva?!?!
-        model.balls[i].velocity *= 0.9999;
+        // mby Slider for adjusting velocity while having the appication open?!?!?
+        model.balls[i].velocity *= 0.999;
         model.last_pos = mouse_pos;
     }
+
+    // -----------------
+    // testing with vec of BAlls
+    for (_count, other) in model.balls.iter_mut().enumerate() {
+        if mouse_pressed == true && other.position.distance(mouse_pos) < (other.size) {
+            // model.xy = mouse_pos;
+            other.left_pressed = true;
+        }
+        if other.left_pressed == true {
+            other.position = mouse_pos;
+        }
+        if mouse_pressed == false && other.left_pressed == true {
+            other.left_pressed = false;
+            other.velocity = mouse_delta_pos;
+        }
+        other.position += other.velocity;
+    }
+}
+
+fn view(app: &App, model: &Model, frame: Frame) {
+    let draw = app.draw();
+    draw.rect()
+        .wh(app.window_rect().wh())
+        .rgba(0.0, 0.0, 0.0, 0.03);
+
+    for ball in model.balls.iter() {
+        draw.ellipse()
+            .xy(ball.position)
+            .radius(ball.size)
+            .color(ball.color);
+    }
+    draw.to_frame(app, &frame).unwrap();
 }
 
 fn rotate(velocity: Vec2, angle: f32) -> Vec2 {
@@ -158,58 +149,48 @@ fn resolve_collision(mut particle: Ball, mut other_particle: Ball) -> (Ball, Bal
     (particle, other_particle)
 }
 
-fn view(app: &App, model: &Model, frame: Frame) {
-    let draw = app.draw();
-    draw.rect()
-        .wh(app.window_rect().wh())
-        .rgba(0.0, 0.0, 0.0, 0.03);
-
-    for ball in model.balls.iter() {
-        draw.ellipse()
-            .xy(ball.position)
-            .radius(ball.size)
-            .color(ball.color);
-    }
-    draw.to_frame(app, &frame).unwrap();
+fn play_rand_sound(app: &App, model: &mut Model, _position: Vec2) {
+    let assets = app.assets_path().expect("could not find assets directory");
+    let random_value = random_range(0, SOUND_COUNT);
+    let _pan = _position.x; // I would liked to have a little bit more audio processing
+    let _vol = _position.y; // here but then I would have to rewrite the whole playback
+                            // function and audiofunction  because the audio crate of nannou
+                            // provides only basic functionality -> not even paning and
+                            // adjusting volume is possible
+    let path = assets
+        .join("sounds")
+        .join(format!("dmk02__{}.wav", random_value));
+    let sound = audrey::open(path).expect("failed to load the sound");
+    model
+        .stream
+        .send(move |audio| {
+            audio.sounds.push(sound);
+        })
+        .ok();
 }
 
-// fn audio(audio: &mut Audio, buffer: &mut Buffer){
+//-----------
+// this is noch working as intended...
+// fn decay_function(mut trigger: bool) -> f32 {
+//     let mut lightness_add = 0.0;
+//     let length = 250;
+//     let mut x = length;
+//     let rate = 0.5 * (1.0 - 0.005);
+//     if trigger {
+//         x = 0;
+//         // println!("lightness_add: {}", lightness_add);
+//         trigger = false;
+//     }
 
+//     while x < length {
+//         lightness_add = 0.5 * (1.0 - 0.005).powi(x);
+//         x += 1;
+//         // println!("x: {}", lightness_add);
+//     }
+
+//     trigger = false;
+
+//     lightness_add as f32
+
+//     // println!("lightness_add: {}", lightness_add);
 // }
-
-// this is for testing purposes how to implement sound
-// But this is only for a key press -> I need to refactor this
-// for making it usable if objects collide
-fn key_pressed(app: &App, model: &mut Model, key: Key) {
-    match key {
-        // Start playing another instance of the sound.
-        // Key::Space => {
-        //     let assets = app.assets_path().expect("could not find assets directory");
-        //     let path = assets.join("sounds").join("thumbpiano.wav");
-        //     let sound = audrey::open(path).expect("failed to load sound");
-        //     model
-        //         .stream
-        //         .send(move |audio| {
-        //             audio.sounds.push(sound);
-        //         })
-        //         .ok();
-        //     println!("space pressed!");
-        // }
-        // _ => {}
-        Key::Space => {
-            let assets = app.assets_path().expect("could not find assets directory");
-            let random_value = random_range(0, 3);
-            let path = assets
-                .join("sounds_2")
-                .join(format!("dmk02__{}.wav", random_value));
-            let sound = audrey::open(path).expect("failed to fuckin load the sound");
-            model
-                .stream
-                .send(move |audio| {
-                    audio.sounds.push(sound);
-                })
-                .ok();
-        }
-        _ => {}
-    }
-}
