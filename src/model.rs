@@ -27,8 +27,8 @@ impl Model {
         while counter < ball_count {
             let ball = Ball::new(
                 pt2(
-                    (rand::random::<f32>() - 0.5) * 1920.0,
-                    (rand::random::<f32>() - 0.5) * 1080.0,
+                    (rand::random::<f32>() - 0.5) * 2560.0,
+                    (rand::random::<f32>() - 0.5) * 960.0,
                 ),
                 (rand::random::<f32>() * 50.0) + 20.0,
                 false,
@@ -38,8 +38,9 @@ impl Model {
                 ),
                 // hsl(0.3, 1.0, 0.5),
                 hsl(rand::random::<f32>(), 1.0, 0.5),
-                1.0,
+                0.5,
                 // (rand::random::<f32>() * 0.5),
+                false,
             );
 
             balls.push(ball);
@@ -95,8 +96,6 @@ impl Model {
         }
     }
 }
-
-
 
 fn audio(audio_file: &mut Audio, buffer: &mut Buffer) {
     let mut have_ended = vec![];

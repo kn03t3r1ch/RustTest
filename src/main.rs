@@ -1,10 +1,9 @@
 use crate::model::Model;
 use model::ball::Ball;
 use nannou::prelude::*;
-use std::time::{self, Duration, SystemTime};
 mod model;
 
-const BALL_COUNT: usize = 25;
+const BALL_COUNT: usize = 50;
 const SOUND_COUNT: usize = 72;
 
 fn main() {
@@ -25,7 +24,6 @@ fn event_a(_app: &App, _model: &mut Model, _event: WindowEvent) {}
 
 fn update(app: &App, model: &mut Model, _update: Update) {
     let mouse_pressed = app.mouse.buttons.left().is_down();
-    // let mouse_pressed_right = app.mouse.buttons.right().is_down();
     let rect = app.window_rect();
     let mouse_pos = app.mouse.position().clamp(
         pt2(rect.left(), rect.bottom()),
@@ -33,10 +31,10 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     );
     let mouse_delta_pos = mouse_pos - model.last_pos;
     let len = model.balls.len();
-
     //-------------
     // intersection testing
     for i in 0..len {
+        // inner collision
         for j in i + 1..len {
             if model.balls[i].position.distance(model.balls[j].position)
                 < (model.balls[i].size + model.balls[j].size)
@@ -44,7 +42,25 @@ fn update(app: &App, model: &mut Model, _update: Update) {
                 play_rand_sound(app, model, model.balls[i].position);
                 (model.balls[i], model.balls[j]) =
                     resolve_collision(model.balls[i], model.balls[j]);
+                model.balls[i].glow = true;
+                model.balls[j].glow = true;
             }
+        }
+        // mouse detection
+        if mouse_pressed == true
+            && model.balls[i].position.distance(mouse_pos) < (model.balls[i].size / 3.0)
+        {
+            model.balls[i].left_pressed = true;
+        }
+        if model.balls[i].left_pressed == true {
+            model.balls[i].position = mouse_pos;
+            //----- testing
+            model.balls[i].velocity = mouse_delta_pos;
+        }
+        // with mouse pressed and intersection
+        if mouse_pressed == false && model.balls[i].left_pressed == true {
+            model.balls[i].left_pressed = false;
+            model.balls[i].velocity = mouse_delta_pos;
         }
         //Bouncing of the sides
         if (model.balls[i].position.x > rect.right() - model.balls[i].size)
@@ -57,30 +73,30 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         {
             model.balls[i].velocity.y *= -1.0;
         }
+        // Glow
+        if model.balls[i].glow {
+            model.balls[i].color.lightness = 1.0;
+        }
+        if model.balls[i].color.lightness > 0.5 {
+            model.balls[i].color.lightness -= 0.005;
+        }
+        model.balls[i].glow = false;
 
+        let storing = model.balls[i].velocity; // compiler told me to store it in another variable
+                                               // really don't know why I needed to do that
+                                               // compiler wrote that can't use mode.balls[i].velocity as immutable as it is already borrowed as mutable
+
+        model.balls[i].position += storing;
         // mby Slider for adjusting velocity while having the appication open?!?!?
-        model.balls[i].velocity *= 0.999;
+        model.balls[i].velocity *= 0.99;
         model.last_pos = mouse_pos;
     }
 
-    // -----------------
-    // testing with vec of BAlls
-    for (_count, other) in model.balls.iter_mut().enumerate() {
-        if mouse_pressed == true && other.position.distance(mouse_pos) < (other.size) {
-            // model.xy = mouse_pos;
-            other.left_pressed = true;
-        }
-        if other.left_pressed == true {
-            other.position = mouse_pos;
-        }
-        if mouse_pressed == false && other.left_pressed == true {
-            other.left_pressed = false;
-            other.velocity = mouse_delta_pos;
-        }
-        other.position += other.velocity;
-    }
+    // mouse_fucker(app.mouse.buttons.right().is_down());
+    // println!("{}", app.time);
+    // let mut switch: bool = app.mouse.buttons.right().is_up();
 }
-
+//----------------------------------------------------------------------
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     draw.rect()
@@ -168,29 +184,3 @@ fn play_rand_sound(app: &App, model: &mut Model, _position: Vec2) {
         })
         .ok();
 }
-
-//-----------
-// this is noch working as intended...
-// fn decay_function(mut trigger: bool) -> f32 {
-//     let mut lightness_add = 0.0;
-//     let length = 250;
-//     let mut x = length;
-//     let rate = 0.5 * (1.0 - 0.005);
-//     if trigger {
-//         x = 0;
-//         // println!("lightness_add: {}", lightness_add);
-//         trigger = false;
-//     }
-
-//     while x < length {
-//         lightness_add = 0.5 * (1.0 - 0.005).powi(x);
-//         x += 1;
-//         // println!("x: {}", lightness_add);
-//     }
-
-//     trigger = false;
-
-//     lightness_add as f32
-
-//     // println!("lightness_add: {}", lightness_add);
-// }

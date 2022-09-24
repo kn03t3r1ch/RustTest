@@ -9,6 +9,7 @@ pub struct Ball {
     pub velocity: Vec2,
     pub color: Hsl,
     pub mass: f32,
+    pub glow: bool,
 }
 // const N_THINGS: usize = 16;
 impl Ball {
@@ -19,6 +20,7 @@ impl Ball {
         velocity: Vec2,
         color: Hsl,
         mass: f32,
+        glow: bool,
     ) -> Self {
         Ball {
             position,
@@ -27,6 +29,7 @@ impl Ball {
             velocity,
             color,
             mass,
+            glow,
         }
     }
 }
