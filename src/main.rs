@@ -5,6 +5,8 @@ mod model;
 
 const BALL_COUNT: usize = 50;
 const SOUND_COUNT: usize = 72;
+const WINDOW_W: u32 = 1920;
+const WINDOW_H: u32 = 1080;
 
 fn main() {
     nannou::app(model).update(update).view(view).run();
@@ -12,7 +14,7 @@ fn main() {
 
 fn model(app: &App) -> Model {
     app.new_window()
-        .size(1920, 1080)
+        .size(WINDOW_W, WINDOW_H)
         .event(event_a)
         .build()
         .unwrap();
@@ -78,7 +80,7 @@ fn update(app: &App, model: &mut Model, _update: Update) {
             model.balls[i].color.lightness = 1.0;
         }
         if model.balls[i].color.lightness > 0.5 {
-            model.balls[i].color.lightness -= 0.005;
+            model.balls[i].color.lightness -= 0.01;
         }
         model.balls[i].glow = false;
 
@@ -88,13 +90,9 @@ fn update(app: &App, model: &mut Model, _update: Update) {
 
         model.balls[i].position += storing;
         // mby Slider for adjusting velocity while having the appication open?!?!?
-        model.balls[i].velocity *= 0.99;
+        model.balls[i].velocity *= 0.999;
         model.last_pos = mouse_pos;
     }
-
-    // mouse_fucker(app.mouse.buttons.right().is_down());
-    // println!("{}", app.time);
-    // let mut switch: bool = app.mouse.buttons.right().is_up();
 }
 //----------------------------------------------------------------------
 fn view(app: &App, model: &Model, frame: Frame) {
@@ -112,6 +110,8 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.to_frame(app, &frame).unwrap();
 }
 
+// I found this utility function here: https://gist.github.com/christopher4lis/f9ccb589ee8ecf751481f05a8e59b1dc
+// rewrote the utility function for make it usable in rust
 fn rotate(velocity: Vec2, angle: f32) -> Vec2 {
     let rotated_velocities: Vec2 = pt2(
         velocity.x * angle.cos() - velocity.y * angle.sin(),

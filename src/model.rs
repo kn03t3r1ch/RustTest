@@ -1,4 +1,10 @@
-use crate::{BALL_COUNT, SOUND_COUNT};
+//-------------------------------
+// I wrote it like this with all the separat models to see how it works having a larger
+// project structur
+// it could have easlilier been done writing this completely in the main.rs file
+// but this way it was a better learning experience for me :)
+//-------------------------------
+use crate::{BALL_COUNT, WINDOW_H, WINDOW_W};
 
 use self::audio_file::Audio;
 use self::ball::Ball;
@@ -10,7 +16,6 @@ use nannou_audio::Buffer;
 pub mod audio_file;
 pub mod ball;
 
-// const N_BALLS: usize = 30;
 // #[derive(Debug)]
 pub struct Model {
     pub last_pos: Vec2,
@@ -27,19 +32,17 @@ impl Model {
         while counter < ball_count {
             let ball = Ball::new(
                 pt2(
-                    (rand::random::<f32>() - 0.5) * 2560.0,
-                    (rand::random::<f32>() - 0.5) * 960.0,
+                    (rand::random::<f32>() - 0.5) * (WINDOW_W as f32 - 100.0),
+                    (rand::random::<f32>() - 0.5) * (WINDOW_H as f32 - 100.0),
                 ),
-                (rand::random::<f32>() * 50.0) + 20.0,
+                (rand::random::<f32>() * 20.0) + 20.0,
                 false,
                 pt2(
                     (rand::random::<f32>() - 0.5) * 3.0,
                     (rand::random::<f32>() - 0.5) * 3.0,
                 ),
-                // hsl(0.3, 1.0, 0.5),
                 hsl(rand::random::<f32>(), 1.0, 0.5),
                 0.5,
-                // (rand::random::<f32>() * 0.5),
                 false,
             );
 
@@ -47,7 +50,7 @@ impl Model {
             counter += 1;
 
             println!(
-                "filling Vec at index: {:?}", // troubleshooting
+                "filling Vec at index: {:?}", // see the vector filling process
                 balls.iter().enumerate().count()
             );
 
@@ -84,11 +87,9 @@ impl Model {
             .build()
             .unwrap();
         stream.play().unwrap();
-
         //-----
         // testing if i can open a file in a directory this way!
         // let mut _file = File::open("./assets/sounds/dmk02__024-c0.wav").expect("Can't open file");
-
         Self {
             last_pos: pt2(0.0, 0.0),
             balls,
